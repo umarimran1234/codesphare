@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/static/css/main.e9c395ea.css",
+    "main.js": "/static/js/main.e2108f03.js",
+    "static/js/453.596ba693.chunk.js": "/static/js/453.596ba693.chunk.js",
+    "static/media/codephare.jpg": "/static/media/codephare.33c513e80a8f43f5d969.jpg",
+    "index.html": "/index.html",
+    "main.e9c395ea.css.map": "/static/css/main.e9c395ea.css.map",
+    "main.e2108f03.js.map": "/static/js/main.e2108f03.js.map",
+    "453.596ba693.chunk.js.map": "/static/js/453.596ba693.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.e9c395ea.css",
+    "static/js/main.e2108f03.js"
+  ]
+}

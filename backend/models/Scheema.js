@@ -1,4 +1,5 @@
 const mongos = require('mongoose')
+const bcrypt = require('bcrypt')
 
 const userSchema = mongos.Schema({
     Name:{
@@ -24,7 +25,6 @@ const userSchema = mongos.Schema({
      require:true,
     }
 })
-
 const User = mongos.model('User', userSchema);
 module.exports = User;
 

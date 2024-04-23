@@ -1,18 +1,16 @@
 const express = require('express');
-const User = require('./models/Scheema'); 
 const app = express();
 const bodyparser = require('body-parser');
 const cors = require('cors')
-const bycritpt = require('bcrypt')
 const db = require('./database/mongodb');
+const path = require('path')
+const User = require('./models/Scheema');
 const passport = require('passport')
 const localstratigy = require('passport-local').Strategy
 const dotenv = require('dotenv') 
 dotenv.config()
 const port = process.env.PORT;
-const usrRouts = require('./routes/Routes')
-
-
+const usrRouts = require('./routes/Routes');
 app.use('/api/user' , usrRouts)
 app.use(cors())
 app.use(bodyparser.json()); 
@@ -23,26 +21,38 @@ const logrequest = (req , res , next) =>{
 }
 app.use(logrequest)
 
+app.get("/",(req , res)=>{
+  app.use(express.static(path.resolve(__dirname,"frontend","build")));
+  res.sendFile(path.resolve(__dirname,"frontend","build","index.html"));
+})
+
+passport.use(new localstratigy(async (email , password , done )=>{
+  try{
+     console.log('Recived credentials' , email , password);
+      const User = await User.findOne({Email:email, Password:password  })
+  }catch{
+
+  }
+}))
+
 app.listen(port, () => {
   console.log(`Server is running on ${port}` );
 });
 
 
+const saltRounds = 10; // You can adjust the number of salt rounds as needed
+const bycritpt = require('bcrypt')
+
 app.post('/Signup', async (req, res) => {
   try {
-     const  data = req.body;
-     const { name, lastname, email, password } = req.body;
-    const bcript = 
-
-     console.log(data);
-     const newuser = new User(data); // Use the correct variable name
-     console.log(newuser);
-     const response = await newuser.save();
-     console.log("data is saved");
-     res.status(200).json(response);
-  }  catch (err) {
-     console.log("got an internal error");
-     res.status(500).json({err: "internal server error" });
+    const data = req.body;
+    const newuser = new User(data);
+    const response = await newuser.save();
+    console.log("data is saved");
+    res.status(200).json(response);
+  } catch (err) {
+    console.log("got an internal error:", err);
+    res.status(500).json({ err: "internal server error" });
   }
 });
 
@@ -52,7 +62,7 @@ app.post('/Signin', async (req, res) => {
      console.log(req.body);
     // Use async/await to wait for User.findOne() to complete
      const user = await User.findOne({ Email: Email, Password: Password });
-  
+  console.log();
     if (user) {
       // Check if the password matches
       if (user.Password === Password) {

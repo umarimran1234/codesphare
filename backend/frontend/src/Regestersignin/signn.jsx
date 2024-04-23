@@ -23,7 +23,7 @@ const navigate = useNavigate()
   }
 
 
-  const data = axios.post('http://localhost:9000/Signin' , {
+  const data = axios.post(`${window.location.origin}/Signin` , {
     Email,
     Password,
   }).then(result =>{

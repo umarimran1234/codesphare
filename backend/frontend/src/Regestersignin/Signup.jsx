@@ -29,7 +29,7 @@ if(!navigator.onLine){
 
 try{
   setloading(true);
-  const data = axios.post('http://localhost:9000/Signup' ,{
+  const data = axios.post(`${window.location.origin}/Signup` ,{
   
   Name, 
   Username,
