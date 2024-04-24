@@ -7,9 +7,7 @@ const path = require('path')
 const User = require('./models/Scheema');
 const passport = require('passport')
 const localstratigy = require('passport-local').Strategy
-const dotenv = require('dotenv') 
-dotenv.config()
-const port = process.env.PORT;
+const port = 9000 ;
 const usrRouts = require('./routes/Routes');
 app.use('/api/user' , usrRouts)
 app.use(cors())
