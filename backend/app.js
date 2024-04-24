@@ -6,6 +6,7 @@ const db = require('./database/mongodb');
 const path = require('path')
 const User = require('./models/Scheema');
 const passport = require('passport')
+const bcrypt  = require('bcrypt')
 const localstratigy = require('passport-local').Strategy
 const port = 9000 ;
 const usrRouts = require('./routes/Routes');
@@ -28,10 +29,21 @@ passport.use(new localstratigy(async (email , password , done )=>{
   try{
      console.log('Recived credentials' , email , password);
       const User = await User.findOne({Email:email, Password:password  })
-  }catch{
-
+  if(!User){
+    return done(null , false,{message:"inccorrect password"})
   }
-}))
+   const  PasswordMatch = await bcrypt.compare(password, User.Password);
+   if(!PasswordMatch){
+  return done(null, false , {message:'Incorrect Password'})
+  }
+  return done(null , User);
+
+  } catch(err){ 
+   return done(err)
+  }
+}
+)
+)
 
 app.listen(port, () => {
   console.log(`Server is running on ${port}` );

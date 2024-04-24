@@ -1,17 +1,15 @@
-
-
 import React, { useState } from 'react';
 import logo from "../img/codephare.jpg"
 import Button from '../childcomponents/button';
 import {toast } from 'react-toastify'
-import {useNavigate} from 'react-router-dom'
+import {Link, useNavigate} from 'react-router-dom'
 import  axios from 'axios'
 
 function Signin() {
 
   const  [Password ,  SetPassword ] = useState()
   const  [Email , setEmail ] = useState()
-const navigate = useNavigate()
+  const navigate = useNavigate()
   const handlesSignin = (e) => {
     e.preventDefault()
   
@@ -21,8 +19,6 @@ const navigate = useNavigate()
     })
   return;
   }
-
-
   const data = axios.post(`${window.location.origin}/Signin` , {
     Email,
     Password,
@@ -89,9 +85,9 @@ const navigate = useNavigate()
               Password
             </label>
             <div className="text-sm">
-              <a href="#" className="font-semibold text-indigo-600 hover:text-indigo-500">
+            <Link to={'/forgetpassword'} className="font-semibold text-indigo-600 hover:text-indigo-500" >  
                 Forgot password?
-              </a>
+                </Link>
             </div>
           </div>
           <div className="mt-2">
@@ -107,17 +103,16 @@ const navigate = useNavigate()
         </div>
 
         <div>
-       <Button
-       btntxt={"Sign in"}
-       />
+       <Button 
+       btntxt={"Forgot Password"}  />
         </div>
       </form>
 
       <p className="mt-10 text-center text-sm text-gray-500">
-        dont't have account{' '}
-        <a href="#" className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500">
-         sign up
-        </a>
+        dont't have account{''}
+        <Link to={'/Signup'} className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500">Sign up </Link> 
+        
+        
       </p>
     </div>
   </div>
