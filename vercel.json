@@ -1,21 +1,18 @@
 {
-  
-    "rewrites": [
-      { "source": "/(.*)", "destination": "/frontend/build/index.html" }
-    ],
-  
-
-  "builds":[{
-    "src":"./app.js",
-    "use":"@vercel/node"
-  }
-],
-"routes":[ 
-   {
-  "src":"/.*",
-  "dest":"app.js"
-}
-
-]
-
+  "builds": [
+    {
+      "src": "./app.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/.*",
+      "dest": "app.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/frontend/build/index.html"
+    }
+  ]
 }
