@@ -1,94 +1,85 @@
 const express = require('express');
 const app = express();
-const bodyparser = require('body-parser');
-const cors = require('cors')
+const bodyParser = require('body-parser');
+const cors = require('cors');
 const db = require('./database/mongodb');
-const path = require('path')
-const User = require('./models/Scheema');
-const passport = require('passport')
-const bcrypt  = require('bcrypt')
-const localstratigy = require('passport-local').Strategy
-const port = 9000 ;
-const usrRouts = require('./routes/Routes');
-app.use('/api/user' , usrRouts)
-app.use(cors())
-app.use(bodyparser.json()); 
+const path = require('path');
+const User = require('./models/Scheema'); // Assuming your Schema file is named Schema.js
+const passport = require('passport');
+const bcrypt = require('bcrypt');
+const localStrategy = require('passport-local').Strategy;
+const port = 9000;
+const usrRoutes = require('./routes/Routes');
+app.use('/api/user', usrRoutes);
+app.use(cors());
+app.use(bodyParser.json());
 
-const logrequest = (req , res , next) =>{
-  console.log(`[${new Date().toLocaleString()}]Request is for this : ${req.originalUrl}`);
-  next()
-}
-app.use(logrequest)
+const logRequest = (req, res, next) => {
+  console.log(`[${new Date().toLocaleString()}] Request is for this: ${req.originalUrl}`);
+  next();
+};
+app.use(logRequest);
 
-app.get("/",(req , res)=>{
-  app.use(express.static(path.resolve(__dirname,"frontend","build")));
-  res.sendFile(path.resolve(__dirname,"frontend","build","index.html"));
-})
-
-passport.use(new localstratigy(async (email , password , done )=>{
-  try{
-     console.log('Recived credentials' , email , password);
-      const User = await User.findOne({Email:email, Password:password  })
-  if(!User){
-    return done(null , false,{message:"inccorrect password"})
-  }
-   const  PasswordMatch = await bcrypt.compare(password, User.Password);
-   if(!PasswordMatch){
-  return done(null, false , {message:'Incorrect Password'})
-  }
-  return done(null , User);
-
-  } catch(err){ 
-   return done(err)
-  }
-}
-)
-)
-
-app.listen(port, () => {
-  console.log(`Server is running on ${port}` );
+app.get("/", (req, res) => {
+  app.use(express.static(path.resolve(__dirname, "frontend", "build")));
+  res.sendFile(path.resolve(__dirname, "frontend", "build", "index.html"));
 });
 
+passport.use(new localStrategy(async (email, password, done) => {
+  try {
+    console.log('Received credentials', email, password);
+    const user = await User.findOne({ Email: email });
+    if (!user) {
+      return done(null, false, { message: 'Incorrect email.' });
+    }
+    // Compare the provided password with the hashed password stored in the database
+    const passwordMatch = await bcrypt.compare(password, user.Password);
+    if (!passwordMatch) {
+      return done(null, false, { message: 'Incorrect password.' });
+    }
+    return done(null, user);
+  } catch (err) {
+    return done(err);
+  }
+}));
 
-const saltRounds = 10; // You can adjust the number of salt rounds as needed
-const bycritpt = require('bcrypt')
+app.listen(port, () => {
+  console.log(`Server is running on ${port}`);
+});
 
 app.post('/Signup', async (req, res) => {
   try {
-    const data = req.body;
-    const newuser = new User(data);
-    const response = await newuser.save();
-    console.log("data is saved");
+    const { name, lastname, Email, Password, username } = req.body;
+    const hashedPassword = await bcrypt.hash(Password, 10);
+    const newUser = new User({
+      name,
+      lastname,
+      Email,
+      Password: hashedPassword,
+      username
+    });
+    const response = await newUser.save();
+    console.log("Data is saved");
     res.status(200).json(response);
   } catch (err) {
-    console.log("got an internal error:", err);
-    res.status(500).json({ err: "internal server error" });
+    console.log("Got an internal error:", err);
+    res.status(500).json({ err: "Internal server error" });
   }
 });
 
-app.post('/Signin', async (req, res) => {
-  try {
-     const { Email, Password } = req.body;
-     console.log(req.body);
-    // Use async/await to wait for User.findOne() to complete
-     const user = await User.findOne({ Email: Email, Password: Password });
-  console.log();
-    if (user) {
-      // Check if the password matches
-      if (user.Password === Password) {
-        // Password is correct, send success response
-        res.status(200).json('Password is Correct');
-      } else {
-        // Password is incorrect, send unauthorized response
-        res.status(401).json('Password is wrong');
-      }
-    } else {
-      // User not found, send unauthorized response
-      res.status(401).json('User not found');
+app.post('/Signin', (req, res, next) => {
+  passport.authenticate('local', { session: false }, (err, user, info) => {
+    if (err) {
+      return next(err);
     }
-  } catch (err) {
-    // Handle any errors that occur during async operations
-    console.error('Error during sign-in:', err);
-    res.status(500).json({ error: 'Internal server error' });
-  }
+    if (!user) {
+      return res.status(401).json({ message: info.message });
+    }
+    // If user is found and password is correct, generate a token
+    const token = jwt.sign({ userId: user._id }, 'personskey', { expiresIn: '1h' });
+    // Return the token as a response
+    res.status(200).json({ token });
+  })(req, res, next);
 });
+// Success route
+
